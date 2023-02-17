@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+    Options +FollowSymLinks
+    Options -Indexes
+    DirectoryIndex index.php
+    RewriteEngine on
+    RewriteCond $1 !^(index\.php|images|robots\.txt)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php/$1 [L]
+    RewriteEngine On
+	RewriteRule .* - [E=REMOTE_USER:%{HTTP:Authorization},L] 
+</IfModule>
+
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
