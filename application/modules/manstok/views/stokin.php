@@ -106,48 +106,51 @@
         $(document).on('submit', '#form', function(e) {
             e.preventDefault();
             let $this = $(this);
-
-            Swal.fire({
-                title: "Simpan data ?",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Simpan",
-                cancelButtonText: "Batal",
-                reverseButtons: true
-            }).then(function(result) {
-                if (result.value) {
-                    Swal.fire({
-                        title: "",
-                        icon: "info",
-                        text: "Proses menyimpan data, mohon ditunggu...",
-                        didOpen: function() {
-                            Swal.showLoading()
-                        }
-                    });
-                    $.ajax({
-                        url: url_insert,
-                        type: 'post',
-                        data: $this.serialize(),
-                        dataType: 'json',
-                        success: function(result) {
-                            Swal.close();
-                            if (result.success) {
-                                Swal.fire('Sukses', result.message, 'success');
-                                $('#form').trigger("reset");
-                                // reload window
-                                // window.location.reload();
-                                // table.ajax.reload();
-                            } else {
-                                Swal.fire('Error', result.message, 'error');
+            if ($('#nama_barang').length > 0) {
+                Swal.fire({
+                    title: "Simpan data ?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Simpan",
+                    cancelButtonText: "Batal",
+                    reverseButtons: true
+                }).then(function(result) {
+                    if (result.value) {
+                        Swal.fire({
+                            title: "",
+                            icon: "info",
+                            text: "Proses menyimpan data, mohon ditunggu...",
+                            didOpen: function() {
+                                Swal.showLoading()
                             }
-                        },
-                        error: function() {
-                            Swal.close();
-                            Swal.fire('Error', 'Terjadi kesalahan pada server', 'error');
-                        }
-                    });
-                }
-            });
+                        });
+                        $.ajax({
+                            url: url_insert,
+                            type: 'post',
+                            data: $this.serialize(),
+                            dataType: 'json',
+                            success: function(result) {
+                                Swal.close();
+                                if (result.success) {
+                                    Swal.fire('Sukses', result.message, 'success');
+                                    $('#form').trigger("reset");
+                                    // reload window
+                                    // window.location.reload();
+                                    // table.ajax.reload();
+                                } else {
+                                    Swal.fire('Error', result.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.close();
+                                Swal.fire('Error', 'Terjadi kesalahan pada server', 'error');
+                            }
+                        });
+                    }
+                });
+            } else {
+                Swal.fire('Error', 'Tidak ada data yang disimpan', 'error');
+            }
         }).on('reset', '#form', function() {
             $('#id').val('');
             $('#tgl_peroleh').val('');

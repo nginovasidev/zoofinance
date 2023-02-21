@@ -28,16 +28,31 @@ class Ajaxfile extends MY_Controller
     {
         $data = $this->input->post();
         $query = $this->db->query(
-            "SELECT a.id, a.faktur_id, a.id_barang, b.nama_barang, a.qty_barang, a.hrg_peroleh 
+            "SELECT a.id, a.faktur_id, a.tgl_peroleh, a.id_barang, b.nama_barang, a.qty_barang, a.hrg_peroleh 
             FROM t_barang_masuk_detail a
             JOIN m_fifo_nama_barang b ON b.id = a.id_barang 
-            WHERE a.is_deleted ='0' AND a.faktur_id ='" . $data['id'] . "'"
+            WHERE a.is_deleted ='0' AND a.id_barang ='" . $data['id'] . "'"
         );
         if ($query->num_rows() > 0) {
             echo json_encode(array('success' => TRUE, 'data' => $query->result()));
         } else {
             echo json_encode(array('success' => FALSE, 'data' => 'Data tidak ditemukan'));
         }
+    }
+
+    function get_barang() {
+        $search = "";
+        $cari = $this->input->post('search');
+        // $page = $this->input->post('per_page');
+        if($cari!=="") $search = "AND ( b.nama_barang LIKE '%$cari%')";
+        $query = $this->db->query(
+            "SELECT a.id, a.tgl_peroleh, a.faktur_id, a.id_barang, b.nama_barang AS 'text', a.qty_barang, a.hrg_peroleh, SUM(a.qty_barang) as total_qty
+            FROM t_barang_masuk_detail a
+            JOIN m_fifo_nama_barang b ON b.id = a.id_barang
+            WHERE a.is_deleted ='0' $search
+            GROUP BY a.id_barang
+            ORDER BY a.tgl_peroleh ASC")->result();
+        echo json_encode($query);
     }
 
     function caribarang() {

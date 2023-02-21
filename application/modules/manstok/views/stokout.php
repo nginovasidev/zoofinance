@@ -21,13 +21,13 @@
                                 <input type="hidden" class="form-control" id="<?= $this->security->get_csrf_token_name() ?>" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" required>
                                 <div class="form-group row">
                                     <div class="col-md-6">
-                                        <label for="no_faktur">No. Dokumen</label>
-                                        <select class="form-control sel2" id="no_faktur" name="no_faktur" style="width: 100%" required></select>
+                                        <label for="no_faktur">Nama Barang</label>
+                                        <select class="form-control sel2" id="id_barang" name="id_barang" style="width: 100%" required></select>
                                     </div>
-                                    <!-- <div class="col-md-6">
-                                        <label for="tgl_peroleh">Tanggal Perolehan</label>
-                                        <input type="date" class="form-control" id="tgl_peroleh" name="tgl_peroleh" placeholder="Tanggal Perolehan" format="dd-mm-yyyy" required>
-                                    </div> -->
+                                    <div class="col-md-6">
+                                        <label for="tgl_keluar">Tanggal Keluar</label>
+                                        <input type="date" class="form-control" id="tgl_keluar" name="tgl_keluar" placeholder="Tanggal Keluar" format="dd-mm-yyyy" required>
+                                    </div>
                                 </div>
                                 <table id="tb-perkiraan" class="table table-bordered">
                                     <colgroup>
@@ -39,14 +39,23 @@
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Nama Barang</th>
-                                            <th class="hrg">Harga Perolehan</th>
-                                            <th class="jml">Jumlah Barang Keluar</th>
+                                            <th>Tanggal</th>
+                                            <th>No. Dokumen</th>
+                                            <th>Harga Perolehan</th>
+                                            <th class="text-center">Jumlah Barang<br>(Current Stock)</th>
+                                            <th class="text-center">Jumlah Barang<br>(Out)</th>
                                             <!-- <th>Aksi</th> -->
                                         </tr>
                                     </thead>
                                     <tbody>
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4" class="text-right">Total</td>
+                                            <td class="text-center"><span id="total_in">0</span></td>
+                                            <td class="text-center"><input type="text" class="form-control" id="total_out" name="total_out" placeholder="Total Keluar" style="display: initial !important" required></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                                 <div class="text-right">
                                     <button type="submit" class="btn btn-primary">Simpan</button>
@@ -94,7 +103,7 @@
     var table;
 
     $(document).ready(function() {
-        $("#tgl_peroleh").val(new Date("<?= date('Y-m-d') ?>").toISOString().substr(0, 10));
+        $("#tgl_keluar").val(new Date("<?= date('Y-m-d') ?>").toISOString().substr(0, 10));
 
         $(document).on('submit', '#form', function(e) {
             e.preventDefault();
@@ -143,6 +152,8 @@
             });
         }).on('reset', '#form', function() {
             $('#id').val('');
+            $row = 0;
+            $('#tb-perkiraan tbody').empty();
             $('#tgl_peroleh').val('');
             $('.sel2').val(null).trigger('change');
             $('#jml_barang').val('');
@@ -150,13 +161,13 @@
             $('#ttl_hrg_peroleh').val('');
         });
 
-        $("#no_faktur").select2({
+        $("#id_barang").select2({
             placeholder: "Pilih Barang",
             minimumInputLength: 0,
             multiple: false,
             allowClear: true,
             ajax: {
-                url: url_ajax + 'get_faktur',
+                url: url_ajax + 'get_barang',
                 dataType: 'json',
                 method: 'POST',
                 quietMillis: 100,
@@ -175,6 +186,8 @@
             }
         }).on('select2:select', function(e) {
             var data = e.params.data;
+            // console.log(data);
+            $('#tb-perkiraan tbody').empty();
             Swal.fire({
                 title: "",
                 icon: "info",
@@ -187,7 +200,7 @@
                 url: url_ajax + 'get_faktur_barang',
                 type: 'post',
                 data: {
-                    id: data.id,
+                    id: data.id_barang,
                     '<?= $this->security->get_csrf_token_name() ?>': '<?= $this->security->get_csrf_hash() ?>'
                 },
                 dataType: 'json',
@@ -198,12 +211,65 @@
                         for (let i = 0; i < result.data.length; i++) {
                             var $row = $("<tr>");
                             $row.append($("<td>"));
-                            $row.append($("<td>").html('<input type="text" class="form-control" id="nama_barang" name="nama_barang[]" value="' + result.data[i].nama_barang + '" data-id="' + result.data[i].id_barang + '" readonly>'));
+                            $row.append($("<td>").html('<input type="date" class="form-control" id="tgl_peroleh" name="tgl_peroleh[]" value="' + result.data[i].tgl_peroleh + '" readonly>'));
+                            $row.append($("<td>").html('<input type="text" class="form-control" id="faktur_id" name="faktur_id[]" value="' + result.data[i].faktur_id + '" readonly>'));
                             $row.append($("<td>").html('<input type="text" class="form-control" id="hrg_peroleh" name="hrg_peroleh[]" value="' + result.data[i].hrg_peroleh + '" readonly>'));
-                            $row.append($("<td>").html('<input type="text" class="form-control" id="jml_barang" name="jml_barang[]" value="' + result.data[i].qty_barang + '" required>'));
+                            $row.append($("<td>").html('<input type="text" class="form-control" id="jml_barang" name="jml_barang[]" value="' + result.data[i].qty_barang + '" readonly>'));
+                            $row.append($("<td>").html('<input type="text" class="form-control" id="qty_keluar" name="qty_keluar[]" value="0" readonly>'));
                             $row.appendTo("#tb-perkiraan tbody");
                             numberRows($("#tb-perkiraan"));
                         }
+
+                        // sum jml_barang
+                        var sum = 0;
+                        $('#tb-perkiraan tbody tr').each(function() {
+                            var $this = $(this);
+                            var jml_barang = $this.find('#jml_barang').val();
+                            sum += parseInt(jml_barang);
+                        });
+                        $('#total_in').text(sum);
+
+                        // sum qty_keluar
+                        // $('#qty_keluar').on('keyup', function() {
+                        //     var $this = $(this);
+                        //     var qty_keluar = $this.val();
+                        //     var qty_barang = $this.parent().parent().find('#jml_barang').val();
+                        //     console.log("qty_keluar: " + qty_keluar);
+                        //     console.log("qty_barang: " + qty_barang);
+                        //     if (parseInt(qty_keluar) > parseInt(qty_barang)) {
+                        //         Swal.fire('Error', 'Qty Keluar tidak boleh lebih besar dari Qty Barang', 'error');
+                        //         $this.val('');
+                        //     }
+                        //     var sum = 0;
+                        //     $('#tb-perkiraan tbody tr').each(function() {
+                        //         var $this = $(this);
+                        //         var qty_keluar = $this.find('#qty_keluar').val();
+                        //         sum += parseInt(qty_keluar);
+                        //     });
+                        //     $('#total_out').text(sum);
+                        // });
+
+                        $('#total_out').keyup(function() {
+                            var $this = $(this);
+                            var total_out = $this.val();
+                            var total_in = $('#total_in').text();
+
+                            for (let i = 0; i < result.data.length; i++) {
+                                var qty_keluar = $('#tb-perkiraan tbody tr').eq(i).find('#qty_keluar').val();
+                                console.log("qty_keluar: " + qty_keluar);
+                                console.log("qty_barang: " + result.data[i].qty_barang);
+                                if (parseInt(qty_keluar) > parseInt(result.data[i].qty_barang)) {
+                                    Swal.fire('Error', 'Qty Keluar tidak boleh lebih besar dari Qty Barang', 'error');
+                                    $this.val('');
+                                }
+                            }
+
+                            if (parseInt(total_out) > parseInt(total_in)) {
+                                Swal.fire('Error', 'Qty Keluar tidak boleh lebih besar dari Qty Barang', 'error');
+                                $this.val('');
+                            }
+                        });
+                    
                     } else {
                         Swal.close();
                         Swal.fire('Error', result.message, 'error');
@@ -214,6 +280,8 @@
                     Swal.fire('Error', 'Terjadi kesalahan pada server', 'error');
                 }
             });
+
+
         });
 
         // table = $('#datatable').DataTable({
