@@ -155,42 +155,6 @@ class Page extends MY_Controller
         print_r('<pre>');
         print_r($data);
         print_r('<pre>');
-        // $this->db->trans_start();
-
-        // $save = [
-        //     'no_faktur' => $data['no_faktur'],
-        //     'tgl_peroleh' => $data['tgl_peroleh'],
-        //     'created_at' => date('Y-m-d H:i:s'),
-        //     'created_by' => $this->session->userdata('id')
-        // ];
-        // $no_faktur = $this->db->query("SELECT * FROM t_barang_masuk where no_faktur='" . $data['no_faktur'] . "' ")->num_rows();
-        // if ($no_faktur == 0) {
-        //     $this->db->insert('t_barang_masuk', $save);
-
-        //     $save_detail = [];
-        //     foreach ($data['nama_barang'] as $key => $value) {
-        //         $save_detail[$key]['faktur_id'] = $save['no_faktur'];
-        //         $save_detail[$key]['id_barang'] = $value;
-        //         $save_detail[$key]['qty_barang'] = $data['jml_barang'][$key];
-        //         $save_detail[$key]['hrg_peroleh'] = $data['hrg_peroleh'][$key];
-        //         $save_detail[$key]['tgl_peroleh'] = $save['tgl_peroleh'];
-        //         $save_detail[$key]['created_at'] = date('Y-m-d H:i:s');
-        //         $save_detail[$key]['created_by'] = $this->session->userdata('id');
-        //     }
-        //     $this->db->insert_batch('t_barang_masuk_detail', $save_detail);
-
-        //     if ($this->db->trans_status() === TRUE) {
-        //         $this->db->trans_commit(); // Commit transaction
-        //         $this->db->trans_complete();
-        //         echo json_encode(array('success' => TRUE, 'message' => 'Data berhasil disimpan'));
-        //     } else {
-        //         $this->db->trans_rollback(); // Rollback transaction
-        //         echo json_encode(array('success' => FALSE, 'message' => 'Data gagal disimpan', 'error' => $this->db->error()));
-        //     }
-        // } else {
-        //     echo json_encode(array('success' => FALSE, 'message' => 'No Faktur sudah ada'));
-        // }
-
     }
 
     function stokout_edit()

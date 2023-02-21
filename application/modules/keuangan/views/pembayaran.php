@@ -953,7 +953,7 @@
         return ribuan;
     }
 
-    function updatelababerjalan(tgl) {
+    function updatelababerjalan(tgl) {w
 
         $.ajax({
 
