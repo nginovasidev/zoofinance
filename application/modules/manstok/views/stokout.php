@@ -52,13 +52,24 @@
                                     <tfoot>
                                         <tr>
                                             <td colspan="4" class="text-right">Total</td>
-                                            <td class="text-center"><span id="total_in">0</span></td>
+                                            <td class="text-center"><span id="curr_stock">0</span></td>
                                             <td class="text-center"><input type="text" class="form-control" id="total_out" name="total_out" placeholder="Total Keluar" style="display: initial !important" required></td>
                                         </tr>
                                     </tfoot>
                                 </table>
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                <div class="row">
+                                    <div class="col-md-4"></div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted ml-auto"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle mx-2">
+                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                <line x1="12" y1="17" x2="12" y2="17"></line>
+                                            </svg>
+                                            Tekan tombol tab setelah input stok out!</span>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -136,9 +147,6 @@
                             if (result.success) {
                                 Swal.fire('Sukses', result.message, 'success');
                                 $('#form').trigger("reset");
-                                // reload window
-                                // window.location.reload();
-                                // table.ajax.reload();
                             } else {
                                 Swal.fire('Error', result.message, 'error');
                             }
@@ -186,7 +194,6 @@
             }
         }).on('select2:select', function(e) {
             var data = e.params.data;
-            // console.log(data);
             $('#tb-perkiraan tbody').empty();
             Swal.fire({
                 title: "",
@@ -220,56 +227,44 @@
                             numberRows($("#tb-perkiraan"));
                         }
 
-                        // sum jml_barang
                         var sum = 0;
                         $('#tb-perkiraan tbody tr').each(function() {
                             var $this = $(this);
                             var jml_barang = $this.find('#jml_barang').val();
                             sum += parseInt(jml_barang);
                         });
-                        $('#total_in').text(sum);
+                        $('#curr_stock').text(sum);
 
-                        // sum qty_keluar
-                        // $('#qty_keluar').on('keyup', function() {
-                        //     var $this = $(this);
-                        //     var qty_keluar = $this.val();
-                        //     var qty_barang = $this.parent().parent().find('#jml_barang').val();
-                        //     console.log("qty_keluar: " + qty_keluar);
-                        //     console.log("qty_barang: " + qty_barang);
-                        //     if (parseInt(qty_keluar) > parseInt(qty_barang)) {
-                        //         Swal.fire('Error', 'Qty Keluar tidak boleh lebih besar dari Qty Barang', 'error');
-                        //         $this.val('');
-                        //     }
-                        //     var sum = 0;
-                        //     $('#tb-perkiraan tbody tr').each(function() {
-                        //         var $this = $(this);
-                        //         var qty_keluar = $this.find('#qty_keluar').val();
-                        //         sum += parseInt(qty_keluar);
-                        //     });
-                        //     $('#total_out').text(sum);
-                        // });
-
-                        $('#total_out').keyup(function() {
-                            var $this = $(this);
-                            var total_out = $this.val();
-                            var total_in = $('#total_in').text();
-
+                        $('#total_out').blur(function() {
+                            var $this = $(this); // user input
+                            var total_out = $this.val(); // user input
+                            var curr_stock = $('#curr_stock').text(); // current stock
+                            var temp = 0;
+                            var xstop = 0;
                             for (let i = 0; i < result.data.length; i++) {
-                                var qty_keluar = $('#tb-perkiraan tbody tr').eq(i).find('#qty_keluar').val();
-                                console.log("qty_keluar: " + qty_keluar);
-                                console.log("qty_barang: " + result.data[i].qty_barang);
-                                if (parseInt(qty_keluar) > parseInt(result.data[i].qty_barang)) {
-                                    Swal.fire('Error', 'Qty Keluar tidak boleh lebih besar dari Qty Barang', 'error');
-                                    $this.val('');
+                                var last_stock = result.data[i].qty_barang;
+                                if (temp == 0) {
+                                    temp = total_out;
+                                }
+                                if (parseInt(temp) > parseInt(last_stock) && xstop == 0) {
+                                    var hasil = parseInt(temp) - parseInt(result.data[i].qty_barang);
+                                    $('#tb-perkiraan tbody tr').eq(i).find('#qty_keluar').val(parseInt(last_stock));
+                                    temp = hasil;
+                                } else if (parseInt(temp) <= parseInt(last_stock) && xstop == 0) {
+                                    var hasil = parseInt(result.data[i].qty_barang) - parseInt(temp);
+                                    $('#tb-perkiraan tbody tr').eq(i).find('#qty_keluar').val(parseInt(temp));
+                                    xstop = 1;
+                                } else if (xstop == 1) {
+                                    $('#tb-perkiraan tbody tr').eq(i).find('#qty_keluar').val(0);
                                 }
                             }
 
-                            if (parseInt(total_out) > parseInt(total_in)) {
+                            if (parseInt(total_out) > parseInt(curr_stock)) {
                                 Swal.fire('Error', 'Qty Keluar tidak boleh lebih besar dari Qty Barang', 'error');
                                 $this.val('');
                             }
                         });
-                    
+
                     } else {
                         Swal.close();
                         Swal.fire('Error', result.message, 'error');
