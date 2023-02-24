@@ -103,12 +103,9 @@
 
         $('#iduser').change(function() {
             let id = $('#iduser').val();
-            console.log('iduser', id);
-
             $('#module_table').show();
             $('#module').html('');
             $('#delete').val('');
-
             $.ajax({
                 url: url_ajax + '/getModuleUser',
                 method: 'post',
@@ -118,9 +115,7 @@
                     "<?= $this->security->get_csrf_token_name() ?>": "<?= $this->security->get_csrf_hash() ?>"
                 },
                 success: function(rs) {
-                    console.log(rs);
                     modules = [];
-
                     Object.keys(rs).forEach(function(key) {
                         if (rs.hasOwnProperty(key)) {
                             $.when($('#tambahmodul').click()).done(function() {
@@ -132,7 +127,7 @@
                     })
                 },
                 error: function(err) {
-                    console.log(err);
+                    Swal.fire('Error', 'Terjadi kesalahan saat mengambil data', 'error');
                 }
             })
         });
@@ -279,12 +274,10 @@
         }
 
         function getListMenu(id, element, data = null) {
-            console.log(id, element, data);
             $.get({
                 url: url_ajax + '/getMenu/' + id,
                 dataType: 'json',
                 success: function(rs) {
-                    console.log(rs);
                     let menu = rs.map(x => createForm(x, data));
 
                     element.closest('tr').nextUntil('.module-row').remove();

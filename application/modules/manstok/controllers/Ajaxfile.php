@@ -46,7 +46,7 @@ class Ajaxfile extends MY_Controller
         // $page = $this->input->post('per_page');
         if($cari!=="") $search = "AND ( b.nama_barang LIKE '%$cari%')";
         $query = $this->db->query(
-            "SELECT a.id, a.tgl_peroleh, a.faktur_id, a.id_barang, b.nama_barang AS 'text', a.qty_barang, a.hrg_peroleh, SUM(a.qty_barang) as total_qty
+            "SELECT a.id_barang as 'id', a.tgl_peroleh, a.faktur_id, b.nama_barang AS 'text', a.qty_barang, a.hrg_peroleh, SUM(a.qty_barang) as total_qty
             FROM t_barang_masuk_detail a
             JOIN m_fifo_nama_barang b ON b.id = a.id_barang
             WHERE a.is_deleted ='0' $search

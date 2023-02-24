@@ -41,7 +41,7 @@
                                             <th>#</th>
                                             <th>Tanggal</th>
                                             <th>No. Dokumen</th>
-                                            <th>Harga Perolehan</th>
+                                            <th>Harga Masuk</th>
                                             <th class="text-center">Jumlah Barang<br>(Current Stock)</th>
                                             <th class="text-center">Jumlah Barang<br>(Out)</th>
                                             <!-- <th>Aksi</th> -->
@@ -139,14 +139,16 @@
                     });
                     $.ajax({
                         url: url_insert,
-                        type: 'post',
+                        type: 'POST',
                         data: $this.serialize(),
                         dataType: 'json',
                         success: function(result) {
                             Swal.close();
+                            console.log(result);
                             if (result.success) {
                                 Swal.fire('Sukses', result.message, 'success');
                                 $('#form').trigger("reset");
+                                window.location.reload();
                             } else {
                                 Swal.fire('Error', result.message, 'error');
                             }
@@ -162,11 +164,11 @@
             $('#id').val('');
             $row = 0;
             $('#tb-perkiraan tbody').empty();
-            $('#tgl_peroleh').val('');
+            $('#tgl_keluar').val('');
             $('.sel2').val(null).trigger('change');
             $('#jml_barang').val('');
-            $('#hrg_peroleh').val('');
-            $('#ttl_hrg_peroleh').val('');
+            $('#hrg_keluar').val('');
+            $('#ttl_hrg_keluar').val('');
         });
 
         $("#id_barang").select2({
@@ -207,20 +209,19 @@
                 url: url_ajax + 'get_faktur_barang',
                 type: 'post',
                 data: {
-                    id: data.id_barang,
+                    id: data.id,
                     '<?= $this->security->get_csrf_token_name() ?>': '<?= $this->security->get_csrf_hash() ?>'
                 },
                 dataType: 'json',
                 success: function(result) {
                     if (result.success) {
                         Swal.close();
-                        console.log(result.data);
                         for (let i = 0; i < result.data.length; i++) {
                             var $row = $("<tr>");
                             $row.append($("<td>"));
                             $row.append($("<td>").html('<input type="date" class="form-control" id="tgl_peroleh" name="tgl_peroleh[]" value="' + result.data[i].tgl_peroleh + '" readonly>'));
                             $row.append($("<td>").html('<input type="text" class="form-control" id="faktur_id" name="faktur_id[]" value="' + result.data[i].faktur_id + '" readonly>'));
-                            $row.append($("<td>").html('<input type="text" class="form-control" id="hrg_peroleh" name="hrg_peroleh[]" value="' + result.data[i].hrg_peroleh + '" readonly>'));
+                            $row.append($("<td>").html('<input type="text" class="form-control" id="hrg_keluar" name="hrg_keluar[]" value="' + result.data[i].hrg_peroleh + '" readonly>'));
                             $row.append($("<td>").html('<input type="text" class="form-control" id="jml_barang" name="jml_barang[]" value="' + result.data[i].qty_barang + '" readonly>'));
                             $row.append($("<td>").html('<input type="text" class="form-control" id="qty_keluar" name="qty_keluar[]" value="0" readonly>'));
                             $row.appendTo("#tb-perkiraan tbody");
@@ -260,7 +261,7 @@
                             }
 
                             if (parseInt(total_out) > parseInt(curr_stock)) {
-                                Swal.fire('Error', 'Qty Keluar tidak boleh lebih besar dari Qty Barang', 'error');
+                                Swal.fire('Peringatan', 'Jumlah barang keluar tidak boleh melebihi stok barang saat ini', 'warning');
                                 $this.val('');
                             }
                         });

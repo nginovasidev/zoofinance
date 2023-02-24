@@ -152,9 +152,46 @@ class Page extends MY_Controller
     function stokout_save()
     {
         $data = $this->input->post();
-        print_r('<pre>');
-        print_r($data);
-        print_r('<pre>');
+        
+        if ($data != null) {
+            $this->db->trans_start();
+            $save = [
+                'id_barang' => $data['id_barang'],
+                'tgl_keluar' => $data['tgl_keluar'],
+                'created_at' => date('Y-m-d H:i:s'),
+                'created_by' => $this->session->userdata('id')
+            ];
+
+            $this->db->insert('t_barang_keluar', $save);
+            // print_r('<pre>');
+            // print_r($save);
+            // print_r('</pre>');
+            $save_detail = [];
+            foreach ($data['tgl_peroleh'] as $key => $value) {
+                $save_detail[$key]['faktur_id'] = $data['faktur_id'][$key];
+                $save_detail[$key]['id_barang'] = $data['id_barang'];
+                $save_detail[$key]['qty_keluar'] = $data['qty_keluar'][$key];
+                $save_detail[$key]['tgl_peroleh'] = $value;
+                $save_detail[$key]['hrg_keluar'] = $data['hrg_keluar'][$key];
+                $save_detail[$key]['created_at'] = date('Y-m-d H:i:s');
+                $save_detail[$key]['created_by'] = $this->session->userdata('id');
+            }
+            $this->db->insert_batch('t_barang_keluar_detail', $save_detail);
+            // print_r('<pre>');
+            // print_r($save_detail);
+            // print_r('</pre>');
+
+            if ($this->db->trans_status() === TRUE) {
+                $this->db->trans_commit(); // Commit transaction
+                $this->db->trans_complete();
+                echo json_encode(array('success' => TRUE, 'message' => 'Data berhasil disimpan'));
+            } else {
+                $this->db->trans_rollback(); // Rollback transaction
+                echo json_encode(array('success' => FALSE, 'message' => 'Data gagal disimpan', 'error' => $this->db->error()));
+            }
+        } else {
+            echo json_encode(array('success' => FALSE, 'message' => 'Data tidak valid'));
+        }
     }
 
     function stokout_edit()
