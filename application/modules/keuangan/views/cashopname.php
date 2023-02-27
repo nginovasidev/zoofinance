@@ -368,7 +368,6 @@
                             } else {
                                 Swal.fire('Error', result.message, 'error');
                             }
-                            console.log(result);
                         },
                         error: function() {
                             Swal.close();

@@ -39,7 +39,7 @@
                                         <col style="width:1%" />
                                         <col style="width:15%" />
                                         <col style="width:20%" />
-                                        <col style="" />
+                                        <col />
                                         <col style="width:15%" />
                                         <col style="width:10%" />
                                     </colgroup>
@@ -127,7 +127,7 @@
                             <table id="tb-perkiraan"  class="table table-bordered">
                                 <colgroup>
                                     <col style="width:1%" />
-                                    <col style="" />
+                                    <col />
                                     <col style="width:20%" />
                                     <col style="width:20%" />
                                     <col style="width:1%" />
@@ -238,10 +238,8 @@
                                 $("#tot_k").html('0');
 
                                 $('#modal-input-data').modal("hide");
-                                // console.log(result.message['0'].tgltrx);
                                 updatelababerjalan(result.message['0'].tgltrx);
 
-                                // location.reload();
                             } else {
                                 Swal.fire('Error', result.message, 'error');
                             }
@@ -277,7 +275,6 @@
                 "url": url_load,
                 "dataType": "json",
                 "data": function(data) {
-                    console.log(data);
                     // Grab form values containing user options
                     dataStart = data.start;
                     let form = {};
@@ -299,7 +296,6 @@
                     return form;
                 },
                 "complete": function(response) {
-                    console.log(response);
                     feather.replace();
                 }
             },
@@ -465,7 +461,6 @@
                 }
             })
         }).on('click', '#add-service-button', function() {
-            console.log('add service button');
             addrows();
         }).on('click', '#tambah-data' , function(){
             $('#form').trigger("reset");
@@ -543,7 +538,6 @@
                     return {
                         results: data
                     }
-                        console.log(data);
                 }
             }
         }).on('select2:select', function(e) {
@@ -656,8 +650,6 @@
 
     $(function () {
         $('body').on('DOMNodeInserted', '.akun:last', function () {
-            
-            
             $(this).select2();
             $(".akun:last").select2({
                     placeholder: "Pilih akun",
@@ -680,13 +672,10 @@
                             return {
                                 results: data
                             }
-                                console.log(data);
                         }
                     }
                 }).on('select2:select', function(e) {
                 });
-              
-              console.log('---');  
         }).on('DOMNodeInserted', '.num:last', function(){
 	        $('.num:last').mask('000,000,000,000,000', {reverse: true});
         } );
@@ -725,12 +714,9 @@
 
           $(".akun:last").append($("<select class='asd'><select/>"));
           $(".num:last").append($('<input class="num">'));
-          console.log('add rows');
-
     }
 
     function hitungtotal(){
-        console.log('hitung total');
         var sum = 0;
         if ($('#kdjentrx').val()==1) {
             // var inps = document.getElementsByName('d[]');
@@ -782,26 +768,15 @@
     }
 
     function updatelababerjalan(tgl){
-
         $.ajax({
-
             type:'post',
-
             url: url_ajax+'/updatelababerjalan',
-
             data:{ 'tanggal':tgl, '<?=$this->security->get_csrf_token_name()?>':'<?=$this->security->get_csrf_hash()?>' },
-
             beforeSend:function(){
-
             },
-
             success:function(response){
-                // console.log('done');
-                // location.reload();
             }
-
         });
-
     }
 
 
@@ -827,7 +802,6 @@
                 "url": url_load,
                 "dataType": "json",
                 "data": function(data) {
-                    console.log(data);
                     // Grab form values containing user options
                     dataStart = data.start;
                     let form = {};
@@ -849,7 +823,6 @@
                     return form;
                 },
                 "complete": function(response) {
-                    console.log(response);
                     feather.replace();
                 }
             },

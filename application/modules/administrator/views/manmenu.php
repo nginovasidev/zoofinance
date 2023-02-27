@@ -171,7 +171,6 @@
                 "url": url_load,
                 "dataType": "json",
                 "data": function(data) {
-                    console.log(data);
                     // Grab form values containing user options
                     dataStart = data.start;
                     let form = {};
@@ -192,7 +191,6 @@
                     return form;
                 },
                 "complete": function(response) {
-                    console.log(response);
                     feather.replace();
                 }
             },
